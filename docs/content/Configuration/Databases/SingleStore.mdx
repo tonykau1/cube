@@ -1,0 +1,95 @@
+---
+title: SingleStore
+permalink: /config/databases/singlestore
+---
+
+## Prerequisites
+
+- The hostname for the [SingleStore][singlestore] workspace
+- The username/password for the [SingleStore][singlestore] workspace
+- The name of the database to use from the [SingleStore][singlestore] workspace
+
+## Setup
+
+### <--{"id" : "Setup"}--> Manual
+
+<InfoBox>
+
+SingleStore is MySQL-compatible, so you can use Cube's MySQL database connection steps to connect to your workspace.
+
+</InfoBox>
+
+Add the following to a `.env` file in your Cube project:
+
+```dotenv
+CUBEJS_DB_TYPE=mysql
+CUBEJS_DB_HOST=svc-1234.cloud-region.svc.singlestore.com
+CUBEJS_DB_NAME=my_singlestore_database
+CUBEJS_DB_USER=singlestore_user
+CUBEJS_DB_PASS=**********
+```
+
+## Environment Variables
+
+| Environment Variable | Description                                                                         | Possible Values           | Required | [Supports multiple data sources?][ref-config-multiple-ds-decorating-env] |
+| -------------------- | ----------------------------------------------------------------------------------- | ------------------------- | :------: | :----------------------------------------------------------------------: |
+| `CUBEJS_DB_HOST`     | The host URL for a database                                                         | A valid database host URL |    ✅    |                                    ✅                                    |
+| `CUBEJS_DB_PORT`     | The port for the database connection                                                | A valid port number       |    ❌    |                                    ✅                                    |
+| `CUBEJS_DB_NAME`     | The name of the database to connect to                                              | A valid database name     |    ✅    |                                    ✅                                    |
+| `CUBEJS_DB_USER`     | The username used to connect to the database                                        | A valid database username |    ✅    |                                    ✅                                    |
+| `CUBEJS_DB_PASS`     | The password used to connect to the database                                        | A valid database password |    ✅    |                                    ✅                                    |
+| `CUBEJS_DB_SSL`      | If `true`, enables SSL encryption for database connections from Cube                | `true`, `false`           |    ❌    |                                    ✅                                    |
+| `CUBEJS_CONCURRENCY` | The number of concurrent connections each queue has to the database. Default is `2` | A valid number            |    ❌    |                                    ❌                                    |
+| `CUBEJS_DB_MAX_POOL` | The maximum number of concurrent database connections to pool. Default is `8`       | A valid number            |    ❌    |                                    ✅                                    |
+
+## Pre-Aggregation Feature Support
+
+### count_distinct_approx
+
+Measures of type
+[`count_distinct_approx`][ref-schema-ref-types-formats-countdistinctapprox] can
+not be used in pre-aggregations when using SingleStore as a source database.
+
+## Pre-Aggregation Build Strategies
+
+<InfoBox>
+
+To learn more about pre-aggregation build strategies, [head
+here][ref-caching-using-preaggs-build-strats].
+
+</InfoBox>
+
+| Feature       | Works with read-only mode? | Is default? |
+| ------------- | :------------------------: | :---------: |
+| Batching      |             ✅             |     ✅      |
+| Export Bucket |             -              |      -      |
+
+By default, SingleStore uses [batching][self-preaggs-batching] to build
+pre-aggregations.
+
+### Batching
+
+No extra configuration is required to configure batching for SingleStore.
+
+### Export Bucket
+
+SingleStore does not support export buckets.
+
+## SSL
+
+To enable SSL-encrypted connections between Cube and SingleStore, set the
+`CUBEJS_DB_SSL` environment variable to `true`. For more information on how to
+configure custom certificates, please check out [Enable SSL Connections to the
+Database][ref-recipe-enable-ssl].
+
+
+[singlestore]: https://www.singlestore.com/
+[ref-caching-using-preaggs-build-strats]:
+  /caching/using-pre-aggregations#pre-aggregation-build-strategies
+[ref-config-multiple-ds-decorating-env]:
+  /config/multiple-data-sources#configuring-data-sources-with-environment-variables-decorated-environment-variables
+[ref-recipe-enable-ssl]: /recipes/enable-ssl-connections-to-database
+[ref-schema-ref-types-formats-countdistinctapprox]:
+  /schema/reference/types-and-formats#count-distinct-approx
+[self-preaggs-batching]: #batching
+[self-ssl]: #ssl
